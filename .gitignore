@@ -127,3 +127,11 @@ dmypy.json
 
 # Local data directory
 data/
+
+# Mac specific files
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.Spotlight-V100
+.Trashes
