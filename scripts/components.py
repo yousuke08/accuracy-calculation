@@ -3,7 +3,7 @@ import random
 class Component:
     """電子回路の要素を表すクラス"""
     
-    def __init__(self, typ_value, random_tolerance, temp_coefficient):
+    def __init__(self, typ_value, random_tolerance, temp_coefficient, seed=None):
         """
         コンポーネントの初期化
         
@@ -11,10 +11,13 @@ class Component:
             typ_value (float): 典型値
             random_tolerance (float): ランダムな誤差（％）
             temp_coefficient (float): 温度係数（ppm/℃）
+            seed (int, optional): ランダムジェネレータのシード
         """
         self.typ_value = typ_value
         self.random_tolerance = random_tolerance
         self.temp_coefficient = temp_coefficient
+        # ランダムジェネレータの作成
+        self.random_generator = random.Random(seed)
         
     def get_random_variation(self):
         """
@@ -23,7 +26,7 @@ class Component:
         Returns:
             float: ランダムな誤差（％）
         """
-        return random.uniform(-self.random_tolerance, self.random_tolerance)
+        return self.random_generator.uniform(-self.random_tolerance, self.random_tolerance)
         
     def get_temperature_variation(self, temperature):
         """
