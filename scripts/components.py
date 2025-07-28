@@ -1,4 +1,6 @@
 import random
+import matplotlib.pyplot as plt
+import numpy as np
 
 class Component:
     """電子回路の要素を表すクラス"""
@@ -59,3 +61,42 @@ class Component:
             random_variation = self.get_random_variation()
         temp_variation = self.get_temperature_variation(temperature)
         return random_variation + temp_variation
+        
+    def visualize_error_distribution(self, temperature, sample_size=10000):
+        """
+        誤差分布を可視化する
+        
+        Args:
+            temperature (float): 温度（℃）
+            sample_size (int): サンプル数（デフォルト: 10000）
+        """
+        # ランダム誤差のサンプルを生成
+        random_errors = [self.get_random_variation() for _ in range(sample_size)]
+        
+        # 温度誤差を計算
+        temp_error = self.get_temperature_variation(temperature)
+        
+        # 総合誤差を計算
+        total_errors = [random_error + temp_error for random_error in random_errors]
+        
+        # ヒストグラムをプロット
+        plt.figure(figsize=(10, 6))
+        
+        # ランダム誤差の分布
+        plt.subplot(1, 2, 1)
+        plt.hist(random_errors, bins=50, alpha=0.7, color='blue', edgecolor='black')
+        plt.title('Random Error Distribution')
+        plt.xlabel('Error (%)')
+        plt.ylabel('Frequency')
+        plt.grid(True)
+        
+        # 総合誤差の分布
+        plt.subplot(1, 2, 2)
+        plt.hist(total_errors, bins=50, alpha=0.7, color='green', edgecolor='black')
+        plt.title('Total Error Distribution')
+        plt.xlabel('Error (%)')
+        plt.ylabel('Frequency')
+        plt.grid(True)
+        
+        plt.tight_layout()
+        plt.show()

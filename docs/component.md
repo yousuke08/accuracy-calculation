@@ -7,6 +7,7 @@
 - ランダムな誤差の計算
 - 温度依存の誤差の計算
 - 総合的な誤差の計算
+- 誤差分布の可視化
 
 ## 使用方法
 
@@ -24,6 +25,9 @@ temp_error = resistor.get_temperature_variation(50)
 
 # 総合的な誤差の計算 (50℃での誤差)
 total_error = resistor.get_total_variation(50)
+
+# 誤差分布の可視化 (50℃での分布)
+resistor.visualize_error_distribution(50)
 ```
 
 ## API
@@ -71,3 +75,12 @@ total_error = resistor.get_total_variation(50)
 #### 戻り値
 
 - float: 総合的な誤差（％）
+
+### `visualize_error_distribution(temperature, sample_size=10000)`
+
+誤差分布を可視化します。
+
+#### 引数
+
+- `temperature` (float): 温度（℃）
+- `sample_size` (int): サンプル数（デフォルト: 10000）
