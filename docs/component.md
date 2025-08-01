@@ -96,6 +96,6 @@ resistor.visualize_error_distribution(50)
 
 以下は、室温（25℃）と最大動作温度（85℃）における総合誤差の分布を重ねて表示した例です。
 
-![誤差分布の可視化例](component/error_distribution.jpg)
+<img src="component/error_distribution.jpg" alt="誤差分布の可視化例" width="500px">
 
 このグラフは、異なる温度条件下でのコンポーネントの誤差の挙動を視覚的に比較するのに役立ちます。
