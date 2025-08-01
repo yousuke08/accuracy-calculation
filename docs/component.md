@@ -15,7 +15,7 @@
 from scripts.components import Component
 
 # コンポーネントの作成（シード指定可）
-resistor = Component(typ_value=1000, random_tolerance=5, temp_coefficient=100, seed=42)
+resistor = Component(typ_value=1000, random_tolerance=(-2, 3), temp_coefficient=100, sigma=3, seed=42)
 
 # ランダムな誤差の取得
 random_error = resistor.get_random_variation()
@@ -32,15 +32,16 @@ resistor.visualize_error_distribution(50)
 
 ## API
 
-### `__init__(typ_value, random_tolerance, temp_coefficient, seed=None)`
+### `__init__(typ_value, random_tolerance, temp_coefficient, sigma=None, seed=None)`
 
 コンポーネントを初期化します。
 
 #### 引数
 
 - `typ_value` (float): 典型値
-- `random_tolerance` (float): ランダムな誤差（％）。正規分布の3σに相当します。
+- `random_tolerance` (float or tuple): ランダムな誤差（％）。単一の数値の場合は±その値の範囲、タプルの場合は(min_tolerance, max_tolerance)の範囲。
 - `temp_coefficient` (float): 温度係数（ppm/℃）
+- `sigma` (float, optional): ランダム誤差の分布のシグマ値。指定しない場合は4.5をデフォルトとします。
 - `seed` (int, optional): ランダムジェネレータのシード
 
 ### `get_random_variation()`

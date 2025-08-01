@@ -5,19 +5,28 @@ import numpy as np
 class Component:
     """電子回路の要素を表すクラス"""
     
-    def __init__(self, typ_value, random_tolerance, temp_coefficient, seed=None):
+    def __init__(self, typ_value, random_tolerance, temp_coefficient, sigma=None, seed=None):
         """
         コンポーネントの初期化
         
         Args:
             typ_value (float): 典型値
-            random_tolerance (float): ランダムな誤差（％）
+            random_tolerance (float or tuple): ランダムな誤差（％）。単一の数値の場合は±その値の範囲、タプルの場合は(min_tolerance, max_tolerance)の範囲。
             temp_coefficient (float): 温度係数（ppm/℃）
+            sigma (float, optional): ランダム誤差の分布のシグマ値。指定しない場合は4.5をデフォルトとします。
             seed (int, optional): ランダムジェネレータのシード
         """
         self.typ_value = typ_value
-        self.random_tolerance = random_tolerance
         self.temp_coefficient = temp_coefficient
+        self.sigma = sigma if sigma is not None else 4.5 # デフォルト値を4.5に設定
+        
+        if isinstance(random_tolerance, (tuple, list)) and len(random_tolerance) == 2:
+            self.min_random_tolerance = random_tolerance[0]
+            self.max_random_tolerance = random_tolerance[1]
+        else:
+            self.min_random_tolerance = -abs(random_tolerance)
+            self.max_random_tolerance = abs(random_tolerance)
+            
         # ランダムジェネレータの作成
         self.random_generator = random.Random(seed)
         
@@ -28,7 +37,10 @@ class Component:
         Returns:
             float: ランダムな誤差（％）
         """
-        return self.random_generator.gauss(0, self.random_tolerance / 3)
+        mean = (self.min_random_tolerance + self.max_random_tolerance) / 2
+        # 指定されたシグマ値に基づいて標準偏差を計算
+        std_dev = (self.max_random_tolerance - self.min_random_tolerance) / (2 * self.sigma)
+        return self.random_generator.gauss(mean, std_dev)
         
     def get_temperature_variation(self, temperature):
         """

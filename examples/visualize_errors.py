@@ -2,7 +2,7 @@ from scripts.components import Component
 import matplotlib.pyplot as plt
 
 # コンポーネントの作成
-resistor = Component(typ_value=1000, random_tolerance=5, temp_coefficient=100, seed=42)
+resistor = Component(typ_value=1000, random_tolerance=(-2, 3), temp_coefficient=100, sigma=3, seed=42)
 
 # 誤差分布の可視化 (50℃での分布)
 resistor.visualize_error_distribution(50)
