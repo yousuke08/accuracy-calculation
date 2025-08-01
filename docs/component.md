@@ -39,13 +39,13 @@ resistor.visualize_error_distribution(50)
 #### 引数
 
 - `typ_value` (float): 典型値
-- `random_tolerance` (float): ランダムな誤差（％）
+- `random_tolerance` (float): ランダムな誤差（％）。正規分布の3σに相当します。
 - `temp_coefficient` (float): 温度係数（ppm/℃）
 - `seed` (int, optional): ランダムジェネレータのシード
 
 ### `get_random_variation()`
 
-ランダムな誤差を取得します。
+ランダムな誤差を取得します。誤差の分布は正規分布に従います。
 
 #### 戻り値
 
