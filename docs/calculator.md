@@ -32,6 +32,12 @@ component_params = [
         "typ_value": 5.0, # 5V
         "room_temp_tolerance": 0.1, # ±0.1%
         "temp_coefficient": 10 # 10ppm/℃
+    },
+    {
+        "symbol": "Vin",
+        "typ_value": 5.0, # 5V
+        "room_temp_tolerance": 0.1, # ±0.1%
+        "temp_coefficient": 10 # 10ppm/℃
     }
 ]
 

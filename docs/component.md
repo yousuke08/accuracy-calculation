@@ -15,10 +15,10 @@
 from scripts.components import Component
 
 # コンポーネントの作成（シード指定可）
-resistor = Component(typ_value=1000, random_tolerance=(-2, 3), temp_coefficient=100, sigma=3, seed=42)
+resistor = Component(typ_value=1000, room_temp_tolerance=(-2, 3), temp_coefficient=100, max_temp_tolerance=(-5, 5), max_operating_temperature=85, sigma=4.5, seed=42)
 
 # ランダムな誤差の取得
-random_error = resistor.get_random_variation()
+random_error = resistor.get_random_variation(25) # 温度を指定
 
 # 温度依存の誤差の計算 (50℃での誤差)
 temp_error = resistor.get_temperature_variation(50)
@@ -26,8 +26,8 @@ temp_error = resistor.get_temperature_variation(50)
 # 総合的な誤差の計算 (50℃での誤差)
 total_error = resistor.get_total_variation(50)
 
-# 誤差分布の可視化 (50℃での分布)
-resistor.visualize_error_distribution(50)
+# 誤差分布の可視化
+resistor.visualize_error_distribution()
 ```
 
 ## API
@@ -79,7 +79,7 @@ resistor.visualize_error_distribution(50)
 
 - float: 総合的な誤差（％）
 
-### `visualize_error_distribution(temperature, sample_size=10000)`
+### `visualize_error_distribution(sample_size=10000)`
 
 誤差分布を可視化します。
 

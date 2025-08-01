@@ -111,11 +111,17 @@ def test_run_monte_carlo_simulation_voltage_divider():
             "typ_value": 1000, # 1kΩ
             "room_temp_tolerance": 1, # ±1%
             "temp_coefficient": 50 # 50ppm/℃
+        },
+        {
+            "symbol": "Vin",
+            "typ_value": 5.0, # 5V
+            "room_temp_tolerance": 0.1, # ±0.1%
+            "temp_coefficient": 10 # 10ppm/℃
         }
     ]
     
     calculator = Calculator(component_params)
-    input_voltage = 5.0
+    input_voltage = 5.0 # この変数はもう使わないが、テストの他の部分との整合性のため残す
     temperature = 25 # 常温
     num_simulations = 10000
 
@@ -123,15 +129,15 @@ def test_run_monte_carlo_simulation_voltage_divider():
     def voltage_divider_formula(component_values, input_params):
         r1 = component_values["R1"]
         r2 = component_values["R2"]
-        v_in = input_params["input_voltage"]
+        v_in = component_values["Vin"] # Vinもコンポーネントとして扱う
         if (r1 + r2) == 0:
             raise ZeroDivisionError("Denominator is zero")
         return v_in * (r2 / (r1 + r2))
 
     results = calculator.run_monte_carlo_simulation(
         formula_func=voltage_divider_formula,
-        component_symbols=["R1", "R2"],
-        input_params={'input_voltage': input_voltage},
+        component_symbols=["R1", "R2", "Vin"],
+        input_params={},
         temperature=temperature,
         num_simulations=num_simulations
     )
@@ -150,7 +156,8 @@ def test_run_monte_carlo_simulation_voltage_divider():
     # 公称値の検証
     nominal_r1 = calculator.get_component("R1").typ_value
     nominal_r2 = calculator.get_component("R2").typ_value
-    expected_nominal_v_out = input_voltage * (nominal_r2 / (nominal_r1 + nominal_r2))
+    nominal_vin = calculator.get_component("Vin").typ_value
+    expected_nominal_v_out = nominal_vin * (nominal_r2 / (nominal_r1 + nominal_r2))
     assert results["nominal_output"] == pytest.approx(expected_nominal_v_out)
 
     # 平均値が公称値に近いことを確認
