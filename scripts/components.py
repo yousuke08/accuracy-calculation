@@ -28,7 +28,7 @@ class Component:
         Returns:
             float: ランダムな誤差（％）
         """
-        return self.random_generator.uniform(-self.random_tolerance, self.random_tolerance)
+        return self.random_generator.gauss(0, self.random_tolerance / 3)
         
     def get_temperature_variation(self, temperature):
         """
@@ -98,5 +98,4 @@ class Component:
         plt.ylabel('Frequency')
         plt.grid(True)
         
-        plt.tight_layout()
-        plt.show()
+        
