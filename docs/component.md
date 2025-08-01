@@ -32,21 +32,23 @@ resistor.visualize_error_distribution(50)
 
 ## API
 
-### `__init__(typ_value, random_tolerance, temp_coefficient, sigma=None, seed=None)`
+### `__init__(typ_value, room_temp_tolerance, temp_coefficient, max_temp_tolerance=None, max_operating_temperature=None, sigma=None, seed=None)`
 
 コンポーネントを初期化します。
 
 #### 引数
 
 - `typ_value` (float): 典型値
-- `random_tolerance` (float or tuple): ランダムな誤差（％）。単一の数値の場合は±その値の範囲、タプルの場合は(min_tolerance, max_tolerance)の範囲。
+- `room_temp_tolerance` (float or tuple): 常温におけるランダムな誤差（％）。単一の数値の場合は±その値の範囲、タプルの場合は(min_tolerance, max_tolerance)の範囲。
 - `temp_coefficient` (float): 温度係数（ppm/℃）
+- `max_temp_tolerance` (float or tuple, optional): 最大動作温度におけるランダムな誤差（％）。指定しない場合はroom_temp_toleranceが使用されます。
+- `max_operating_temperature` (float, optional): 最大動作温度（℃）。max_temp_toleranceが指定された場合に必要です。
 - `sigma` (float, optional): ランダム誤差の分布のシグマ値。指定しない場合は4.5をデフォルトとします。
 - `seed` (int, optional): ランダムジェネレータのシード
 
-### `get_random_variation()`
+### `get_random_variation(temperature)`
 
-ランダムな誤差を取得します。誤差の分布は正規分布に従います。
+ランダムな誤差を取得します。温度に応じて適切なばらつき範囲を使用します。誤差の分布は正規分布に従います。
 
 #### 戻り値
 
@@ -84,4 +86,16 @@ resistor.visualize_error_distribution(50)
 #### 引数
 
 - `temperature` (float): 温度（℃）
+#### 引数
+
 - `sample_size` (int): サンプル数（デフォルト: 10000）
+
+---
+
+### 誤差分布の可視化例
+
+以下は、室温（25℃）と最大動作温度（85℃）における総合誤差の分布を重ねて表示した例です。
+
+![誤差分布の可視化例](component/error_distribution.jpg)
+
+このグラフは、異なる温度条件下でのコンポーネントの誤差の挙動を視覚的に比較するのに役立ちます。
