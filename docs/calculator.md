@@ -168,3 +168,21 @@ Calculatorクラスの初期化。
   - `percent_error_max` (float): 最大パーセンテージ誤差。
   - `num_simulations` (int): シミュレーション回数。
   - `error` (str, optional): エラーが発生した場合のエラーメッセージ。
+
+### `perform_local_sensitivity_analysis(formula_func, component_symbols, input_params, temperature, delta=0.01)`
+
+計算式のパラメータに対する局所感度解析を行います。
+各コンポーネントの公称値を微小量変化させたときの出力の変化率を計算します。
+
+#### 引数
+
+- `formula_func` (callable): 計算式を表す関数。引数として`(component_values, input_params)`を受け取ります。
+- `component_symbols` (list): 計算式で使用するコンポーネントのシンボル名のリスト。
+- `input_params` (dict): 計算式に渡すその他の入力パラメータの辞書。
+- `temperature` (float): 解析を行う温度（℃）。
+- `delta` (float): 各パラメータを変化させる微小量（パーセンテージ、デフォルト: 0.01は1%）。
+
+#### 戻り値
+
+- `dict`: 各コンポーネントの感度解析結果。
+          キーはコンポーネントのシンボル名、値は出力の変化率。

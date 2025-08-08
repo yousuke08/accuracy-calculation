@@ -125,3 +125,64 @@ class Calculator:
             "percent_error_max": percent_error_max,
             "num_simulations": num_simulations
         }
+
+    def perform_local_sensitivity_analysis(self, formula_func, component_symbols, input_params, temperature, delta=0.01):
+        """
+        計算式のパラメータに対する局所感度解析を行う。
+        各コンポーネントの公称値を微小量変化させたときの出力の変化率を計算する。
+
+        Args:
+            formula_func (callable): 計算式を表す関数。引数として(component_values, input_params)を受け取る。
+            component_symbols (list): 計算式で使用するコンポーネントのシンボル名のリスト。
+            input_params (dict): 計算式に渡すその他の入力パラメータの辞書。
+            temperature (float): 解析を行う温度（℃）。
+            delta (float): 各パラメータを変化させる微小量（パーセンテージ、例: 0.01は1%）。
+
+        Returns:
+            dict: 各コンポーネントの感度解析結果。
+                  キーはコンポーネントのシンボル名、値は出力の変化率。
+        """
+        sensitivity_results = {}
+
+        # 基準となる公称値での出力を計算
+        nominal_component_values = {symbol: self.get_component(symbol).typ_value for symbol in component_symbols}
+        base_output = formula_func(nominal_component_values, input_params)
+
+        for symbol in component_symbols:
+            component = self.get_component(symbol)
+            if not component:
+                raise ValueError(f"Component with symbol {symbol} not found.")
+
+            original_typ_value = component.typ_value
+
+            # +delta% 変化させた場合の出力
+            component.typ_value = original_typ_value * (1 + delta / 100)
+            output_plus_delta = formula_func(
+                {s: self.get_component(s).typ_value for s in component_symbols},
+                input_params
+            )
+
+            # -delta% 変化させた場合の出力
+            component.typ_value = original_typ_value * (1 - delta / 100)
+            output_minus_delta = formula_func(
+                {s: self.get_component(s).typ_value for s in component_symbols},
+                input_params
+            )
+
+            # typ_valueを元に戻す
+            component.typ_value = original_typ_value
+
+            # 感度を計算 (出力の変化量 / 入力の変化量)
+            # 入力の変化量 = original_typ_value * (delta / 100) * 2
+            # 出力の変化量 = output_plus_delta - output_minus_delta
+            
+            # 感度 = (出力の変化量 / 基準出力) / (入力の変化量 / 基準入力)
+            # ここでは、(出力の変化量 / 基準出力) / (2 * delta / 100) とします
+            if base_output != 0 and original_typ_value != 0:
+                sensitivity = ((output_plus_delta - output_minus_delta) / base_output) / (2 * delta / 100)
+            else:
+                sensitivity = float('inf') # ゼロ除算の場合
+
+            sensitivity_results[symbol] = sensitivity
+
+        return sensitivity_results

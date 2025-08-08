@@ -176,3 +176,77 @@ def test_run_monte_carlo_simulation_voltage_divider():
     assert -5 < results["percent_error_average"] < 5
     assert -5 < results["percent_error_min"] < 0
     assert 0 < results["percent_error_max"] < 5
+
+def test_perform_local_sensitivity_analysis():
+    component_params = [
+        {
+            "symbol": "R1",
+            "typ_value": 1000, # 1kΩ
+            "room_temp_tolerance": 1, # ±1%
+            "temp_coefficient": 50 # 50ppm/℃
+        },
+        {
+            "symbol": "R2",
+            "typ_value": 1000, # 1kΩ
+            "room_temp_tolerance": 1, # ±1%
+            "temp_coefficient": 50 # 50ppm/℃
+        },
+        {
+            "symbol": "Vin",
+            "typ_value": 5.0, # 5V
+            "room_temp_tolerance": 0.1, # ±0.1%
+            "temp_coefficient": 10 # 10ppm/℃
+        }
+    ]
+    
+    calculator = Calculator(component_params)
+    temperature = 25 # 常温
+    delta = 0.01 # 1%変化
+
+    # 分圧回路の計算式を定義
+    def voltage_divider_formula(component_values, input_params):
+        r1 = component_values["R1"]
+        r2 = component_values["R2"]
+        v_in = component_values["Vin"]
+        if (r1 + r2) == 0:
+            raise ZeroDivisionError("Denominator is zero")
+        return v_in * (r2 / (r1 + r2))
+
+    sensitivity_results = calculator.perform_local_sensitivity_analysis(
+        formula_func=voltage_divider_formula,
+        component_symbols=["R1", "R2", "Vin"],
+        input_params={},
+        temperature=temperature,
+        delta=delta
+    )
+
+    # 結果の検証
+    assert "R1" in sensitivity_results
+    assert "R2" in sensitivity_results
+    assert "Vin" in sensitivity_results
+
+    # 分圧回路の感度計算（理論値）
+    # Vout = Vin * (R2 / (R1 + R2))
+    # dVout/dR1 = -Vin * R2 / (R1 + R2)^2
+    # dVout/dR2 = Vin * R1 / (R1 + R2)^2
+    # dVout/dVin = R2 / (R1 + R2)
+
+    # 相対感度 (S_x^y = (dy/y) / (dx/x) = (dy/dx) * (x/y))
+    # S_R1^Vout = (dVout/dR1) * (R1/Vout) = (-Vin * R2 / (R1 + R2)^2) * (R1 / (Vin * R2 / (R1 + R2)))
+    #             = -R1 / (R1 + R2)
+    # S_R2^Vout = (dVout/dR2) * (R2/Vout) = (Vin * R1 / (R1 + R2)^2) * (R2 / (Vin * R2 / (R1 + R2)))
+    #             = R1 / (R1 + R2)
+    # S_Vin^Vout = (dVout/dVin) * (Vin/Vout) = (R2 / (R1 + R2)) * (Vin / (Vin * R2 / (R1 + R2)))
+    #              = 1
+
+    nominal_r1 = calculator.get_component("R1").typ_value
+    nominal_r2 = calculator.get_component("R2").typ_value
+    nominal_vin = calculator.get_component("Vin").typ_value
+
+    expected_sensitivity_r1 = -nominal_r1 / (nominal_r1 + nominal_r2)
+    expected_sensitivity_r2 = nominal_r1 / (nominal_r1 + nominal_r2)
+    expected_sensitivity_vin = 1.0
+
+    assert sensitivity_results["R1"] == pytest.approx(expected_sensitivity_r1, rel=0.01)
+    assert sensitivity_results["R2"] == pytest.approx(expected_sensitivity_r2, rel=0.01)
+    assert sensitivity_results["Vin"] == pytest.approx(expected_sensitivity_vin, rel=0.01)
