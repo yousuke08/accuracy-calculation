@@ -131,3 +131,8 @@ data/
 ._*
 .Spotlight-V100
 .Trashes
+
+# Generated output files
+*.jpg
+*.png
+error_distribution.*
